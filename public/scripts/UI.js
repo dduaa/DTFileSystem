@@ -3,27 +3,34 @@ const SignInForm = (function () {
     const initialize = function () {
         // Populate the avatar selection
         Avatar.populate($("#register-avatar"));
-
+        
         // Hide it
-        $("#signin-overlay").hide();
+        $("#login-area").hide();
+        $("#register-area").show();
 
+        $('#action_login').on('click', e => {
+            $("#login-area").show();
+            $("#register-area").hide();
+        })
+        $('#action_to_register').on('click', e => {
+            $("#login-area").hide();
+            $("#register-area").show();
+        });
         // Submit event for the signin form
-        $("#signin-form").on("submit", (e) => {
+        $("#login-form").on("submit", (e) => {
             // Do not submit the form
             e.preventDefault();
 
             // Get the input fields
             const username = $("#signin-username").val().trim();
             const password = $("#signin-password").val().trim();
-
+            console.log(username, password,'want to login ')
             // Send a signin request
             Authentication.signin(username, password,
                 () => {
                     hide();
                     UserPanel.update(Authentication.getUser());
                     UserPanel.show();
-
-                    Socket.connect();
                 },
                 (error) => { $("#signin-message").text(error); }
             );
@@ -33,22 +40,22 @@ const SignInForm = (function () {
         $("#register-form").on("submit", (e) => {
             // Do not submit the form
             e.preventDefault();
+            console.log("45")
 
             // Get the input fields
-            const username = $("#register-username").val().trim();
+            const name = $("#register-username").val().trim();
             const avatar = $("#register-avatar").val();
-            const name = $("#register-name").val().trim();
             const password = $("#register-password").val().trim();
             const confirmPassword = $("#register-confirm").val().trim();
-
+            console.log(name, password, 'want to reg ')
             // Password and confirmation does not match
-            if (password != confirmPassword) {
+            if (password !== confirmPassword) {
                 $("#register-message").text("Passwords do not match.");
                 return;
             }
 
             // Send a register request
-            Registration.register(username, avatar, name, password,
+            Register.register( name, password,avatar,
                 () => {
                     $("#register-form").get(0).reset();
                     $("#register-message").text("You can sign in now.");
@@ -56,6 +63,7 @@ const SignInForm = (function () {
                 (error) => { $("#register-message").text(error); }
             );
         });
+
     };
 
     // This function shows the form

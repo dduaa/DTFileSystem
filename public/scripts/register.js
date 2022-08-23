@@ -13,7 +13,6 @@ const Register =(function(){
         const userInfo = {
             "name": name,
             "avatar": avatar,
-            "name": name,
             "password": password
         };
 

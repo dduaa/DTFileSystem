@@ -77,7 +77,9 @@ const Avatar = (function(){
                 );
             }
             select.append(optgroup);
+            
         }
+        //console.log(select.children())
     }
     // This function gets the code from the avatar name
     const getCode = function (name) {

@@ -48,7 +48,7 @@ const Authentication =(function () {
                 onError(json.error);
         })
         .catch((err) => {
-            onError(e);
+            onError(err);
         });
     };
     const signout = function (onSuccess, onError) {
@@ -67,7 +67,7 @@ const Authentication =(function () {
             else if (onError) onError(json.error);
         })
         .catch((err) => {
-            onError(e);
+            onError(err);
         });
     };
     return {sigin, signout, validate, getUser}
