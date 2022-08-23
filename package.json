@@ -1,0 +1,32 @@
+{
+  "name": "dtfilesystem",
+  "version": "1.0.0",
+  "description": "file sharing web app for DT system",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dduaa/DTFileSystem.git"
+  },
+  "keywords": [
+    "online",
+    "file",
+    "sharing",
+    "system",
+    "with",
+    "protection"
+  ],
+  "author": "DU DONGHONG",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dduaa/DTFileSystem/issues"
+  },
+  "homepage": "https://github.com/dduaa/DTFileSystem#readme",
+  "dependencies": {
+    "bcrypt": "^5.0.1",
+    "express": "^4.18.1",
+    "mongoose": "^6.5.2"
+  }
+}
