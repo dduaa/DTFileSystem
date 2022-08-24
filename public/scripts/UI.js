@@ -24,15 +24,16 @@ const SignInForm = (function () {
             // Get the input fields
             const username = $("#signin-username").val().trim();
             const password = $("#signin-password").val().trim();
-            console.log(username, password,'want to login ')
+            //console.log(username,'want to login ')
             // Send a signin request
             Authentication.signin(username, password,
-                () => {
+                (user) => {
+                    //console.log(user,'login sucess');
                     hide();
-                    UserPanel.update(Authentication.getUser());
-                    UserPanel.show();
+                    UserPanel.show(user);
+                    FilePanel.show();
                 },
-                (error) => { $("#signin-message").text(error); }
+                (error) => { $("#login-message").text(error); }
             );
         });
 
@@ -40,14 +41,13 @@ const SignInForm = (function () {
         $("#register-form").on("submit", (e) => {
             // Do not submit the form
             e.preventDefault();
-            console.log("45")
 
             // Get the input fields
             const name = $("#register-username").val().trim();
             const avatar = $("#register-avatar").val();
             const password = $("#register-password").val().trim();
             const confirmPassword = $("#register-confirm").val().trim();
-            console.log(name, password, 'want to reg ')
+            //console.log(name, 'want to register ')
             // Password and confirmation does not match
             if (password !== confirmPassword) {
                 $("#register-message").text("Passwords do not match.");
@@ -56,11 +56,13 @@ const SignInForm = (function () {
 
             // Send a register request
             Register.register( name, password,avatar,
-                () => {
-                    $("#register-form").get(0).reset();
+                (success) => {
+                    $("#register-form")[0].reset();
                     $("#register-message").text("You can sign in now.");
                 },
-                (error) => { $("#register-message").text(error); }
+                (error) => { 
+                    $("#register-message").text(error); 
+                }
             );
         });
 
@@ -68,15 +70,16 @@ const SignInForm = (function () {
 
     // This function shows the form
     const show = function () {
-        $("#signin-overlay").fadeIn(500);
+        $("#login-area").show();
+        $("#register-area").hide();
     };
 
     // This function hides the form
     const hide = function () {
-        $("#signin-form").get(0).reset();
-        $("#signin-message").text("");
+        $("#login-form")[0].reset();
+        $("#login-message").text("");
         $("#register-message").text("");
-        $("#signin-overlay").fadeOut(500);
+        $("#login-area").fadeOut(500);
     };
 
     return { initialize, show, hide };
@@ -86,15 +89,20 @@ const UserPanel = (function () {
     // This function initializes the UI
     const initialize = function () {
         // Hide it
-        $("#user-panel").hide();
+        hide();
 
         // Click event for the signout button
         $("#signout-button").on("click", () => {
             // Send a signout request
             Authentication.signout(
-                () => {
+                (e) => {
+                    //console.log("sign out show singin")
                     hide();
+                    FilePanel.hide();
                     SignInForm.show();
+                },
+                ()=>{
+                    console.log("sign out fail")
                 }
             );
         });
@@ -103,27 +111,20 @@ const UserPanel = (function () {
 
     // This function shows the form with the user
     const show = function (user) {
-        $("#user-panel").show();
+        UI.getUserDisplay(user);
+        $("#user-display").show();
+        $("#signout-button").show();
+        
     };
 
     // This function hides the form
     const hide = function () {
-        $("#user-panel").hide();
+        $("#user-display").hide();
+        $("#signout-button").hide();
+        $("#signout-button").empty();
+        $("#user-display").empty();
     };
-
-    // This function updates the user panel
-    const update = function (user) {
-        if (user) {
-            $("#user-panel .user-avatar").html(Avatar.getCode(user.avatar));
-            $("#user-panel .user-name").text(user.name);
-        }
-        else {
-            $("#user-panel .user-avatar").html("");
-            $("#user-panel .user-name").text("");
-        }
-    };
-
-    return { initialize, show, hide, update };
+    return { initialize, show, hide };
 })();
 
 
@@ -131,44 +132,105 @@ const UserPanel = (function () {
 const FilePanel = (function () {
     // This stores the file area
     let fileArea = null;
+    let fileForm = null;
+    let fileTB = null;
+    let fileDown = null;
 
     // This function initializes the UI
     const initialize = function () {
         // Set up the file area
         fileArea = $("#file-area");
-        // Submit event for the input form
+        fileForm = $("#upload-form")
+        fileTB = $("#file-table-body");
+        fileDown = $("#file-table-body");
+        fileTB.empty();
+
+        fileForm.on("submit", (e) => {
+            e.preventDefault();
+
+            let file = document.getElementById("file").files[0];
+            let formData = new FormData();
+            formData.append("file", file);
+            const password = $("#fpassword").val().trim();
+            formData.append("password", password);
+
+            Authentication.upload(formData,
+                (res) => {
+                    $("#share-message").text(
+                        res.filename + " " + res.message);
+                    fileForm[0].reset();
+                },
+                (error) => { 
+                    $("#share-message").text(error); 
+                }
+            )
+        })
+        
+
+
     };
 
     // This function updates the fileroom area
-    const update = function (fileroom) {
-        // Clear the online users area
-        fileArea.empty();
+    const update = function () {
+        Authentication.getList(
+            (fileList)=>{
+                fileTB.empty();
+                for (var id in fileList){
+                    file = fileList[id];
+
+                    fileTB.append(
+                        "<tr><td>"+
+                        file.originalName
+                        +"</td><td>"+
+                        file.uploader
+                        + "</td><td>" +
+                        file.downloadCount
+                        + "</td><td>" +
+                        file.uploadTime
+                        + "</td><td>" +
+                        `<a href="/file/${id}" target="_blank"  class="btn left" >Download</a>`+
+                        `<button id = "${id}" class="btn waves-effect red waves-light" type="button" name="action">Delete
+                                <i class="material-icons right">clear</i>
+                            </button>`
+                        + "</td></tr>"
+                    );
+                    $(`#${id}`).on('click', e => {
+                        let text = `You want to delete file: ${file.originalName}`;
+                        if (confirm(text) == true) {
+                            Authentication.deleteFile(id,
+                                (success)=>{
+                                    confirm(success)
+                                },
+                                (error)=>{
+                                    confirm(error)
+                                })
+                        }
+                    });
+                }
+            }
+        )
     };
-
-    let counter = setTimeout(() => { $("#typing-message").text(""); }, 3000);
-    const addTypingMessage = function (user, user2) {
-
-        const currentUser = Authentication.getUser();
-        if (user.name == currentUser.name) {
-            return;
-        }
-        $("#typing-message").text(user.name + "is requesting..." + user2);
-        clearTimeout(counter);
-        counter = setTimeout(() => { $("#typing-message").text(""); }, 3000);
-    };
-
-
-
-    return { initialize, update, };
+    const hide = function(){
+        fileArea.hide()
+        //fileDown[0].reset();
+        $("#Download-message").text("");
+    }
+    const show = function () {
+        fileArea.show()
+        update();
+    }
+    return { initialize, update,hide, show };
 })();
 
 const UI = (function () {
     // This function gets the user display
     const getUserDisplay = function (user) {
-        return $("<div class='field-content row shadow'></div>")
+        $("#user-display")
             .append($("<span class='user-avatar'>" +
                 Avatar.getCode(user.avatar) + "</span>"))
             .append($("<span class='user-name'>" + user.name + "</span>"));
+        $("#signout-button")
+            .append($(`<span class="material-icons">logout</span>`));
     };
 
     // The components of the UI are put here

@@ -21,15 +21,17 @@ const Register =(function(){
             "headers": { "Content-Type": "application/json" },
             "body": JSON.stringify(userInfo)
         })
-        .then((res) => {
-            let json = res.json();
+        .then((res) => res.json())
+        .then((json) => {
             if (json.status == "success") {
                 /* Run the onSuccess() callback */
-                onSuccess(json.success);
-            } else if (onError){
-                onError(json.error);
-            } 
+                onSuccess(json);
+            } else if (onError) {
+                onError(json.message);
+            }
+               
         })
-        return { register };
-   }
+        
+   };
+    return { register };
 })();

@@ -15,8 +15,8 @@
         <div class="nav-wrapper teal lighten-2">
 
             <a class="brand-logo center">DT File Sharing System</a>
-            <a href="#" data-target="slide-out" class="sidenav-trigger
-                show-on-large brand-logo left"><i class="material-icons">menu</i></a>
+            <div id="user-display" class="brand-logo left show-on-large brand-logo left">
+            </div>
 
             <button id="signout-button" class="icon brand-logo right show-on-small"><span class="material-icons">logout</span></button>
         </div>
@@ -56,7 +56,7 @@
             <div class="card">
                 <div id="register" class="card-content">
                     <span class="card-title teal-text text-light-1">Register</span>
-                    <!-- login form-->
+                    <!-- register form-->
                     <form id="register-form">
                         <div class="input-field">
                             <select id="register-avatar" >
@@ -94,6 +94,46 @@
 
             </div>
         </div>
+        <div id="file-area" class="col s12" style="display:none">
+        <div class="card">
+                <div id="file-upload" class="card-content">
+                    <span class="card-title teal-text text-light-1">Share Your Files</span>
+                    <!-- upload form-->
+                    <form id="upload-form" action="/upload" method="post" enctype="multipart/form-data">
+                        <div class="input-field">
+                            <input type="file" id="file" required>
+                        </div>
+                        <div class="input-field">
+                            <input type="password" id="fpassword" >
+                            <label class="active" for="fpassword"> Optional Password</label>
+                        </div>                
+                        <div>
+                            <button class="btn waves-effect waves-light
+                                btn-small right" type="submit" id="share-btn">Share
+                            </button>
+                        </div>
+                        <br>
+                        <div id="share-message" class="card-content red-text helper-text"></div>
+                    </form>
+                </div>
+
+            </div>
+        <table  class="striped" >
+            <caption><h3>Sharing files</h3></caption>
+            <thead>
+            <tr>
+                <th>File</th>
+                <th>Uploader</th>
+                <th>Upload Time</th>
+                <th>Download Counts</th>
+                <th>Action</th>
+            </tr>
+            </thead>
+
+            <tbody id="file-table-body">
+            </tbody>
+        </table>
+        </div>
         
     </div>
 
@@ -103,9 +143,9 @@
         <div class="container">
             <div class="row">
                 <div class="col l6 s12">
-                    <h5 class="white-text">IDEA APP</h5>
+                    <h5 class="white-text">DT File System</h5>
                     <p class="grey-text text-lighten-4">This App is to help
-                        communicate and create idea.</p>
+                        file sharing for DT system.</p>
                 </div>
             </div>
         </div>
@@ -129,16 +169,21 @@
         // Initialize the UI
         UI.initialize();
         $('select').formSelect();
-
+        
         // Validate the signin
         Authentication.validate(
             () => {
+                //console.log("currently log in")
                 SignInForm.hide();
-                UserPanel.update(Authentication.getUser());
                 UserPanel.show();
+                FilePanel.update()
 
             },
-            () => { SignInForm.show(); }
+            () => { 
+                SignInForm.show(); 
+                UserPanel.hide();
+                FilePanel.hide()
+            }
         );
     });
 
