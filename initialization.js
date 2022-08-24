@@ -22,6 +22,7 @@ async function run(){
             console.log(error); // Failure
         });
         //add admin account
+        //enter the initialized password whatever what here
         const hash = bcrypt.hashSync("DT_project2022", 10);
         const admin = await User.create({
             name: "admin",
