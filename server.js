@@ -246,13 +246,7 @@ function containWordCharsOnly(text) {
 async function handleDownload(req, res){
     const file = await File.findById(req.params.id);
     if(file==null){
-        res.render("password",
-            {
-                error: true,
-                filename: file.originalName,
-                message: "Already been removed, please refresh."
-            }
-        )
+        res.redirect('/')
         return
     }
     if (file.password != null) {
