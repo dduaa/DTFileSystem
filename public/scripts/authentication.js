@@ -41,12 +41,10 @@ const Authentication = (function () {
             .then((res) => res.json())
             .then((json) => {
                 if (json.status == "success") {
-                    console.log('validate success')
                     user = json.user;
                     onSuccess(user);
                 }
                 else if (onError){
-                    console.log('validate error')
                     onError(json.message);
                 }
                     

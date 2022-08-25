@@ -151,7 +151,6 @@ const FilePanel = (function () {
     let fileArea = null;
     let fileForm = null;
     let fileTB = null;
-    let fileDown = null;
 
     // This function initializes the UI
     const initialize = function () {

@@ -9,6 +9,9 @@
     "start": "node server.js",
     "initDb": "nodemon initialization.js"
   },
+  "engines": {
+    "node": "16.13.1"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/dduaa/DTFileSystem.git"

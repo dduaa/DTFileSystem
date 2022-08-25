@@ -61,7 +61,7 @@ app.post("/register", async (req, res) => {
                 type: "customer",
                 avatar: avatar,
             })
-            console.log(customer, "customer created")
+            //console.log(customer, "customer created")
             await customer.save()
             // I. Sending a success response to the browser
             res.json({ status: "success" });
@@ -91,7 +91,7 @@ app.post("/signin", async (req, res) => {
             return
         }
     }else{
-        console.log("no such name found, cannot login")
+        //console.log("no such name found, cannot login")
         res.json({ status: "error", message: "Name or Password is not correct" });
         return;
         
@@ -149,7 +149,7 @@ app.post("/upload", upload.single("file"),async (req, res)=>{
         }
 
         const file = await File.create(fileData)
-        console.log(file, req.body)
+        //console.log(file, req.body)
 
         res.json({ 
             status: "success", 
@@ -232,7 +232,7 @@ function containWordCharsOnly(text) {
 async function handleDownload(req, res){
     const file = await File.findById(req.params.id);
     if (file.password != null) {
-        console.log(req.body)
+        //console.log(req.body)
         if (req.body.password == null) {
             res.render("password", 
                     { 
