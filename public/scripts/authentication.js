@@ -125,11 +125,11 @@ const Authentication = (function () {
         }).then((res) => res.json())
             .then((json) => {
                 if (json.status == "success") {
-                    onSuccsess(json.message);
-                    FilePanel.update()
+                    onSuccsess(json.message);                 
                 } else {
                     onError(json.message);
                 }
+                FilePanel.update()
             }).catch((e) => {
                 //console.log(e);
             })
