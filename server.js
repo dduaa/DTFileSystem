@@ -3,6 +3,7 @@ const express = require("express");
 const bcrypt = require("bcrypt");
 const fs = require("fs");
 const session = require("express-session");
+//const session = require('cookie-session');
 const app = express();
 const multer = require("multer")
 const mongoose = require("mongoose")
@@ -10,23 +11,36 @@ const mongoose = require("mongoose")
 const upload = multer({ dest: "uploads",})
 const File = require("./models/File")
 const User = require("./models/User")
+const MongoStore = require("connect-mongo");
 mongoose.connect(process.env.DATABASE_URL, ()=>{
     console.log("connected to db succesffuly")
 })
 app.set("view engine", "ejs")
+
+//midware
 // Use the 'public' folder to serve static files
 app.use(express.static("public"));
 // Use the json middleware to parse JSON data
 app.use(express.json());
 app.use(express.urlencoded({extended:true}))
+
+
 // Use the session middleware to maintain sessions
 const chatSession = session({
-    secret: "game",
-    resave: false,
-    saveUninitialized: false,
+    secret: process.env.EXPRESS_SESSION_SECRET,
+    resave: true,
+    saveUninitialized: true,
     rolling: true,
-    cookie: { maxAge: 3600000 }
+    cookie: { maxAge: 3600000 },
     //set one hour cookie
+    store: MongoStore.create({
+        client: mongoose.connection.getClient(),
+        dbName: process.env.MONGO_DB_NAME,
+        collectionName: "sessions",
+        stringify: false,
+        autoRemove: "interval",
+        autoRemoveInterval: 1
+    })
 });
 app.use(chatSession);
 
@@ -110,8 +124,10 @@ app.get("/validate", (req, res) => {
         const avatar = user['avatar'];
         const name = user['name'];
         res.json({ status: "success", user: { user, avatar, name } })
+        return
     } else {
         res.json({ status: "error", message: "No session is established." })
+        return
     }
 
 });
@@ -121,9 +137,7 @@ app.get("/signout", (req, res) => {
 
     // Deleting req.session.user
     delete req.session.user;
-    req.session.destroy((err) => { 
-        res.send(err)
-    })
+    req.session.destroy();
     res.json({ status: "success", message:"log out sucessfully" })
 });
 

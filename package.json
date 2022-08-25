@@ -32,6 +32,7 @@
   "homepage": "https://github.com/dduaa/DTFileSystem#readme",
   "dependencies": {
     "bcrypt": "^5.0.1",
+    "connect-mongo": "^4.6.0",
     "cors": "^2.8.5",
     "dotenv": "^16.0.1",
     "ejs": "^3.1.8",
