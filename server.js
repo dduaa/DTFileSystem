@@ -198,44 +198,50 @@ app.get("/showfiles",(req, res)=>{
 app.route("/file/:id").get(handleDownload).post(handleDownload)
 
 app.post("/deletefile", async (req, res) => {
-    //admin can delete all; other customer can only delete those whose uploader are themselves
-    const{id, name}= req.body;
-    let temp = await File.findById(id);
-    if(temp.path){
-        let path = temp.path;
-        let deleteInfo;
-        if(name==="admin"){
-            deleteInfo = await File.deleteOne({ _id: id})
-        }
-        else{
-            deleteInfo = await File.deleteOne({ _id: id, uploader: name })
-        }
-        if (deleteInfo.deletedCount == 1) {
-            try {
-                fs.unlinkSync(path)
-                res.json({
-                    status: "success",
-                    message: "Delete successfully",
-                })
-            } catch (err) {
+    try{
+        //admin can delete all; other customer can only delete those whose uploader are themselves
+        const { id, name } = req.body;
+        let temp = await File.findById(id);
+        if (temp.path) {
+            let path = temp.path;
+            let deleteInfo;
+            if (name === "admin") {
+                deleteInfo = await File.deleteOne({ _id: id })
+            }
+            else {
+                deleteInfo = await File.deleteOne({ _id: id, uploader: name })
+            }
+            if (deleteInfo.deletedCount == 1) {
+                try {
+                    fs.unlinkSync(path)
+                    res.json({
+                        status: "success",
+                        message: "Delete successfully",
+                    })
+                } catch (err) {
+                    res.json({
+                        status: "error",
+                        message: "Delete name from db, but failed physically",
+                    })
+                }
+
+            } else {
                 res.json({
                     status: "error",
-                    message: "Delete name from db, but failed physically",
+                    message: "Permission Deny",
                 })
             }
-
         } else {
             res.json({
                 status: "error",
-                message: "Permission Deny",
+                message: "File not exist",
             })
         }
-    }else{
-        res.json({
-            status: "error",
-            message: "File not exist",
-        })
+    } catch (e) {
+        res.redirect('/')
+        return
     }
+    
     
 })
 // This helper function checks whether the text only contains word characters
@@ -244,36 +250,42 @@ function containWordCharsOnly(text) {
 }
 
 async function handleDownload(req, res){
-    const file = await File.findById(req.params.id);
-    if(file==null){
+    try{
+        const file = await File.findById(req.params.id);
+        if (file == null) {
+            res.redirect('/')
+            return
+        }
+        if (file.password != null) {
+            //console.log(req.body)
+            if (req.body.password == null) {
+                res.render("password",
+                    {
+                        error: true,
+                        filename: file.originalName,
+                        message: "Please Enter Password."
+                    }
+                )
+                return
+            }
+            if (!await bcrypt.compare(req.body.password, file.password)) {
+                res.render("password",
+                    {
+                        filename: file.originalName,
+                        error: true,
+                        message: "Invalid Password"
+                    }
+                )
+                return
+            }
+        }
+        file.downloadCount++;
+        await file.save();
+        res.download(file.path, file.originalName)
+    }catch(e){
         res.redirect('/')
         return
     }
-    if (file.password != null) {
-        //console.log(req.body)
-        if (req.body.password == null) {
-            res.render("password", 
-                    { 
-                        error: true, 
-                        filename: file.originalName,
-                        message:"Please Enter Password." 
-                    }
-                )
-            return
-        }
-        if (!await bcrypt.compare(req.body.password, file.password)) {
-            res.render("password", 
-            { 
-                filename: file.originalName, 
-                error: true,
-                message:"Invalid Password" }
-                )
-            return
-        }
-    }
-    file.downloadCount++;
-    await file.save();
-    res.download(file.path, file.originalName)
 }
 const PORT = process.env.PORT||3000;
 app.listen(PORT)
