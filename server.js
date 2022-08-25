@@ -25,7 +25,8 @@ const chatSession = session({
     resave: false,
     saveUninitialized: false,
     rolling: true,
-    cookie: { maxAge: 300000 }
+    cookie: { maxAge: 3600000 }
+    //set one hour cookie
 });
 app.use(chatSession);
 
@@ -120,6 +121,9 @@ app.get("/signout", (req, res) => {
 
     // Deleting req.session.user
     delete req.session.user;
+    req.session.destroy((err) => { 
+        res.send(err)
+    })
     res.json({ status: "success", message:"log out sucessfully" })
 });
 

@@ -10,11 +10,16 @@ const SignInForm = (function () {
 
         $('#action_login').on('click', e => {
             $("#login-area").show();
+            $("#login-area").show();
+            $("#login-form")[0].reset();
+            $("#login-message").text("");
             $("#register-area").hide();
         })
         $('#action_to_register').on('click', e => {
             $("#login-area").hide();
             $("#register-area").show();
+            $("#register-form")[0].reset();
+            $("#register-message").text("");
         });
         // Submit event for the signin form
         $("#login-form").on("submit", (e) => {
@@ -29,7 +34,8 @@ const SignInForm = (function () {
             Authentication.signin(username, password,
                 (user) => {
                     //console.log(user,'login sucess');
-                    hide();
+                    loginHide();
+                    registerHide();
                     UserPanel.show(user);
                     FilePanel.show();
                 },
@@ -69,20 +75,31 @@ const SignInForm = (function () {
     };
 
     // This function shows the form
-    const show = function () {
+    const signinShow = function () {
         $("#login-area").show();
+        $("#login-form")[0].reset();
+        $("#login-message").text("");
+        $("#register-area").hide();
+    };
+    const registerShow = function () {
+        $("#register-area").show();
+        $("#register-form")[0].reset();
+        $("#register-message").text("");
+        $("#login-area").hide();
+    };
+
+    const loginHide = function () {
+        $("#login-form")[0].reset();
+        $("#login-message").text("");
+        $("#login-area").hide();
+    };
+    const registerHide = function () {
+        $("#register-form")[0].reset();
+        $("#register-message").text("");
         $("#register-area").hide();
     };
 
-    // This function hides the form
-    const hide = function () {
-        $("#login-form")[0].reset();
-        $("#login-message").text("");
-        $("#register-message").text("");
-        $("#login-area").fadeOut(500);
-    };
-
-    return { initialize, show, hide };
+    return { initialize, signinShow, registerShow, loginHide, registerHide };
 })();
 
 const UserPanel = (function () {
@@ -99,10 +116,10 @@ const UserPanel = (function () {
                     //console.log("sign out show singin")
                     hide();
                     FilePanel.hide();
-                    SignInForm.show();
+                    SignInForm.signinShow();
                 },
                 ()=>{
-                    console.log("sign out fail")
+                    //console.log("sign out fail")
                 }
             );
         });
@@ -216,8 +233,11 @@ const FilePanel = (function () {
         $("#Download-message").text("");
     }
     const show = function () {
+        fileForm[0].reset();
+        $("#Download-message").text("");
         fileArea.show()
         update();
+        console.log('file panel show and update')
     }
     return { initialize, update,hide, show };
 })();

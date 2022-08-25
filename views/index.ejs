@@ -172,15 +172,17 @@
         
         // Validate the signin
         Authentication.validate(
-            () => {
-                //console.log("currently log in")
-                SignInForm.hide();
-                UserPanel.show();
-                FilePanel.update()
+            (user) => {
+                console.log("currently log in")
+                SignInForm.registerHide();
+                SignInForm.loginHide();
+                UserPanel.show(user);
+                console.log('hi')
+                FilePanel.show()
 
             },
             () => { 
-                SignInForm.show(); 
+                SignInForm.signinShow(); 
                 UserPanel.hide();
                 FilePanel.hide()
             }
