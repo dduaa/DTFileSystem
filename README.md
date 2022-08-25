@@ -16,4 +16,4 @@ https://bit.ly/DTFSS
 
 to-do:
 1. compatiable with chinese character (file name)
-2. add session cookie to keep alive, not just refresh and logout
+2. heroku will destroy old file when restart, server issue but it's free....
