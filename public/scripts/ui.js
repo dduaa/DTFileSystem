@@ -236,7 +236,7 @@ const FilePanel = (function () {
         $("#Download-message").text("");
         fileArea.show()
         update();
-        console.log('file panel show and update')
+        //console.log('file panel show and update')
     }
     return { initialize, update,hide, show };
 })();
